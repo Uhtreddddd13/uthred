@@ -1,0 +1,8 @@
+/* ---------- auth ---------- */
+async function doAuth(p,b){await api(p,'POST',b);const nx=new URLSearchParams(location.search).get('next');location.href=Object.values(PAGES).includes(nx)?nx:'index.html'}
+function emailAuth(reg){doAuth(reg?'/auth/register':'/auth/login',{n:$('#gn')?$('#gn').value:'',e:$('#ge').value,p:$('#gp').value})}
+async function logout(){await api('/auth/logout','POST');location.href='index.html'}
+function togReg(){T.gs=T.gs?0:1;draw();initGoogle()}
+function loginPage(){const r=T.gs;return `<div class="lg" style="margin:50px auto"><h2>${r?'Create account':'Sign in'}</h2><div style="display:grid;gap:8px">${r?'<input id="gn" placeholder="Full name">':''}<input id="ge" type="email" placeholder="Email"><input id="gp" type="password" placeholder="Password (min 8 characters)" onkeydown="if(event.key=='Enter')emailAuth(${r?1:0})"><button class="btn" onclick="emailAuth(${r?1:0})">${r?'Create account':'Sign in'}</button><button class="btn g" onclick="togReg()">${r?'I already have an account':'Create a new account'}</button></div><div id="gbtn" style="margin-top:16px;display:flex;justify-content:center"></div></div>`}
+let GC;
+async function initGoogle(){const el=$('#gbtn');if(!el)return;if(GC===undefined)GC=(await api('/config')).googleClientId||'';if(!GC)return;const go=()=>{google.accounts.id.initialize({client_id:GC,callback:r=>doAuth('/auth/google',{credential:r.credential})});google.accounts.id.renderButton($('#gbtn'),{theme:'outline',size:'large',shape:'pill',width:300})};if(window.google&&google.accounts)return go();const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=go;document.head.appendChild(s)}
